@@ -4,16 +4,48 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Laravel\Facades\Image;
 
 class UserController extends Controller
 {
-    public function profile()
+    public function storeAvatar(Request $request)
     {
-        $user = auth()->user();
-        $posts = $user->posts()->orderBy('created_at', 'desc')->get();
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
 
-        return view('profile-posts', compact('user', 'posts'));
+        $user     = auth()->user();
+        $filename = $user->id.'-'.uniqid().'.jpg';
+
+        $imgData = Image::read($request->file('avatar'))->scale(120)->encodeByExtension('jpg');
+        Storage::disk('public')->put('avatars/'.$filename, $imgData);
+
+        $oldAvatar = $user->avatar;
+
+        $user->avatar = $filename;
+        $user->save();
+
+        if ($oldAvatar != '/fallback-avatar.jpg') {
+            Storage::disk('public')->delete(str_replace('/storage/', '/', $oldAvatar));
+        }
+
+        return redirect('/profile/'.$user->username)->with('success', 'Avatar updated.');
     }
+
+    public function manageAvatar()
+    {
+        return view('avatar-form');
+    }
+
+    public function profile($user)
+    {
+        $username = User::query()->where('username', $user)->firstOrFail();
+        $posts    = $username->posts()->orderBy('created_at', 'desc')->get();
+
+        return view('profile-posts', ['posts' => $posts, 'username' => $username]);
+    }
+
     public function correctHomePage()
     {
         if (auth()->check()) {
@@ -22,11 +54,12 @@ class UserController extends Controller
             return view('homepage');
         }
     }
+
     public function register(Request $request)
     {
         $registerFields = $request->validate([
             'username' => 'required|string|min:3|max:24|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|max:24|confirmed',
         ]);
 
