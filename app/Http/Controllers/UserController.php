@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
+    public function profile()
+    {
+        $user = auth()->user();
+        $posts = $user->posts()->orderBy('created_at', 'desc')->get();
+
+        return view('profile-posts', compact('user', 'posts'));
+    }
     public function correctHomePage()
     {
         if (auth()->check()) {
