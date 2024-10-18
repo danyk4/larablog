@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Follow;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -40,10 +41,59 @@ class UserController extends Controller
 
     public function profile($user)
     {
-        $username = User::query()->where('username', $user)->firstOrFail();
-        $posts    = $username->posts()->orderBy('created_at', 'desc')->get();
+        $currentlyFollowing = 0;
+        $username           = User::query()->where('username', $user)->firstOrFail();
+        $posts              = $username->posts()->orderBy('created_at', 'desc')->get();
 
-        return view('profile-posts', ['posts' => $posts, 'username' => $username]);
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
+        }
+
+        return view('profile-posts', [
+                'posts'              => $posts,
+                'username'           => $username,
+                'currentlyFollowing' => $currentlyFollowing,
+                //'followerCount'      => count($username->followers),
+            ]
+        );
+    }
+
+    public function profileFollowers($user)
+    {
+        $currentlyFollowing = 0;
+        $username           = User::query()->where('username', $user)->firstOrFail();
+        $posts              = $username->posts()->orderBy('created_at', 'desc')->get();
+
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
+        }
+
+        return view('profile-followers', [
+                'posts'              => $posts,
+                'username'           => $username,
+                'currentlyFollowing' => $currentlyFollowing,
+                'followers'          => $username->followers()->latest()->get(),
+            ]
+        );
+    }
+
+    public function profileFollowing($user)
+    {
+        $currentlyFollowing = 0;
+        $username           = User::query()->where('username', $user)->firstOrFail();
+        $posts              = $username->posts()->orderBy('created_at', 'desc')->get();
+
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
+        }
+
+        return view('profile-following', [
+                'posts'              => $posts,
+                'username'           => $username,
+                'currentlyFollowing' => $currentlyFollowing,
+                'following'          => $username->followingUsers()->latest()->get(),
+            ]
+        );
     }
 
     public function correctHomePage()

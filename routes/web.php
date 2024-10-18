@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Gate;
@@ -18,6 +19,10 @@ Route::post('/logout', [UserController::class, 'logout'])->middleware('mustBeLog
 Route::get('/manage-avatar', [UserController::class, 'manageAvatar'])->middleware('mustBeLoggedIn');
 Route::post('/manage-avatar', [UserController::class, 'storeAvatar'])->middleware('mustBeLoggedIn');
 
+// Follow routes
+Route::post('/create-follow/{user:username}', [FollowController::class, 'createFollow'])->middleware('mustBeLoggedIn');
+Route::post('/remove-follow/{user:username}', [FollowController::class, 'removeFollow'])->middleware('mustBeLoggedIn');
+
 // Post routes
 Route::get('/create-post', [PostController::class, 'createPost'])->middleware('mustBeLoggedIn');
 Route::post('/create-post', [PostController::class, 'storePost'])->middleware('mustBeLoggedIn');
@@ -28,3 +33,5 @@ Route::put('/post/{post}', [PostController::class, 'update'])->middleware('can:u
 
 // Profile routes
 Route::get('/profile/{user}', [UserController::class, 'profile'])->middleware('mustBeLoggedIn');
+Route::get('/profile/{user}/followers', [UserController::class, 'profileFollowers'])->middleware('mustBeLoggedIn');
+Route::get('/profile/{user}/following', [UserController::class, 'profileFollowing'])->middleware('mustBeLoggedIn');
