@@ -2,6 +2,7 @@
     :username="$username"
     :currently-following="$currentlyFollowing"
     :posts="$posts"
+    doctitle="{{ $username->username }} followers"
 >
     <div class="list-group">
         @foreach($followers as $follow)

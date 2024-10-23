@@ -49,7 +49,9 @@ class UserController extends Controller
             $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
         }
 
-        return view('profile-posts', [
+        return view(
+            'profile-posts',
+            [
                 'posts'              => $posts,
                 'username'           => $username,
                 'currentlyFollowing' => $currentlyFollowing,
@@ -68,7 +70,9 @@ class UserController extends Controller
             $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
         }
 
-        return view('profile-followers', [
+        return view(
+            'profile-followers',
+            [
                 'posts'              => $posts,
                 'username'           => $username,
                 'currentlyFollowing' => $currentlyFollowing,
@@ -87,7 +91,9 @@ class UserController extends Controller
             $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
         }
 
-        return view('profile-following', [
+        return view(
+            'profile-following',
+            [
                 'posts'              => $posts,
                 'username'           => $username,
                 'currentlyFollowing' => $currentlyFollowing,
@@ -99,7 +105,7 @@ class UserController extends Controller
     public function correctHomePage()
     {
         if (auth()->check()) {
-            return view('homepage-feed');
+            return view('homepage-feed', ['posts' => auth()->user()->feedPosts()->latest()->paginate(3)]);
         } else {
             return view('homepage');
         }

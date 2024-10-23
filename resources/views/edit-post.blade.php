@@ -1,13 +1,13 @@
-<x-layout>
+<x-layout doctitle="Edit: {{ $post->title }}">
     <div class="container py-md-5 container--narrow">
         <form action="/post/{{ $post->id }}" method="POST">
             @csrf
             @method('PUT')
             <div class="form-group">
                 <label for="post-title" class="text-muted mb-1"><small>Title</small></label>
-                <input required name="title" value="{{ old('title', $post->title) }}" id="post-title" class="form-control form-control-lg form-control-title" type="text" placeholder="" autocomplete="off" />
+                <input required name="title" value="{{ old('title', $post->title) }}" id="post-title" class="form-control form-control-lg form-control-title" type="text" placeholder="" autocomplete="off"/>
                 @error('title')
-                    <p class="text-danger small m-0">{{ $message }}</p>
+                <p class="text-danger small m-0">{{ $message }}</p>
                 @enderror
             </div>
 

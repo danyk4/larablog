@@ -1,10 +1,7 @@
-<x-profile :username="$username" :currently-following="$currentlyFollowing" :posts="$posts">
+<x-profile :username="$username" :currently-following="$currentlyFollowing" :posts="$posts" doctitle="{{ $username->username }} profile page">
     <div class="list-group">
         @foreach($posts as $post)
-            <a href="/post/{{ $post->id }}" class="list-group-item list-group-item-action">
-                <img class="avatar-tiny" src="{{ $post->user->avatar }}"/>
-                <strong>{{ $post->title }}</strong> on {{ $post->created_at->format('d-m-Y') }}
-            </a>
+            <x-posts :post="$post" hideAuthor/>
         @endforeach
     </div>
 </x-profile>
