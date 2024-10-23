@@ -30,6 +30,7 @@ Route::get('/post/{post}', [PostController::class, 'show'])->name('post.show');
 Route::delete('/post/{post}', [PostController::class, 'destroy'])->middleware('can:delete,post')->name('post.destroy');
 Route::get('/post/{post}/edit', [PostController::class, 'edit'])->middleware('can:update,post')->name('post.edit');
 Route::put('/post/{post}', [PostController::class, 'update'])->middleware('can:update,post')->name('post.update');
+Route::get('/search/{term}', [PostController::class, 'search'])->name('post.search');
 
 // Profile routes
 Route::get('/profile/{user}', [UserController::class, 'profile'])->middleware('mustBeLoggedIn');

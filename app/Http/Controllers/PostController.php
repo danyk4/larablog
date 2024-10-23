@@ -10,12 +10,21 @@ use Illuminate\View\View;
 
 class PostController extends Controller
 {
+    public function search($term)
+    {
+        $posts = Post::search($term)->get();
+        $posts->load('user:id,username,avatar');
+
+        return $posts;
+    }
+
     public function show(Post $post): View
     {
         $post['body'] = strip_tags(Str::markdown($post['body']), '<p><a><h1><h2><h3><h4><h5><ul><li><ol><strong><em><br>');
 
         return view('show', compact('post'));
     }
+
     public function createPost(): mixed
     {
 //        if (!auth()->check()) {
@@ -29,11 +38,11 @@ class PostController extends Controller
     {
         $formFields = $request->validate([
             'title' => 'required|min:5|max:255',
-            'body' => 'required|min:5 ',
+            'body'  => 'required|min:5 ',
         ]);
 
         $formFields['title'] = strip_tags($formFields['title']);
-        $formFields['body'] = strip_tags($formFields['body']);
+        $formFields['body']  = strip_tags($formFields['body']);
 
         $formFields['user_id'] = auth()->id();
 
@@ -51,11 +60,11 @@ class PostController extends Controller
     {
         $formFields = $request->validate([
             'title' => 'required|min:5|max:255',
-            'body' => 'required|min:5 ',
+            'body'  => 'required|min:5 ',
         ]);
 
         $formFields['title'] = strip_tags($formFields['title']);
-        $formFields['body'] = strip_tags($formFields['body']);
+        $formFields['body']  = strip_tags($formFields['body']);
 
         $post->update($formFields);
 
@@ -70,6 +79,6 @@ class PostController extends Controller
 
         $post->delete();
 
-        return redirect("/profile/" . auth()->user()->username)->with('success', 'Post deleted!');
+        return redirect("/profile/".auth()->user()->username)->with('success', 'Post deleted!');
     }
 }
