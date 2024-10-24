@@ -1,8 +1,10 @@
 <?php
 
+use App\Events\ChatMessage;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\UserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
@@ -36,3 +38,18 @@ Route::get('/search/{term}', [PostController::class, 'search'])->name('post.sear
 Route::get('/profile/{user}', [UserController::class, 'profile'])->middleware('mustBeLoggedIn');
 Route::get('/profile/{user}/followers', [UserController::class, 'profileFollowers'])->middleware('mustBeLoggedIn');
 Route::get('/profile/{user}/following', [UserController::class, 'profileFollowing'])->middleware('mustBeLoggedIn');
+
+// Chat route
+Route::post('/send-chat-message', function (Request $request) {
+    $formFields = $request->validate([
+        'textvalue' => 'required|string',
+    ]);
+
+    if ( ! trim(strip_tags($formFields['textvalue']))) {
+        return response()->noContent();
+    }
+
+    broadcast(new ChatMessage(['username' => auth()->user()->username, 'textvalue' => strip_tags($request->textvalue), 'avatar' => auth()->user()->avatar]))->toOthers();
+
+    return response()->noContent();
+})->middleware('mustBeLoggedIn');
