@@ -165,8 +165,6 @@ class UserController extends Controller
             return view('homepage-feed', ['posts' => auth()->user()->feedPosts()->latest()->paginate(3)]);
         } else {
             $postCount = Cache::remember('postCount', 20, function () {
-                sleep(5);
-
                 return Post::count();
             });
 
