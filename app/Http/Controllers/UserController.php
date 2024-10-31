@@ -55,9 +55,24 @@ class UserController extends Controller
                 'posts'              => $posts,
                 'username'           => $username,
                 'currentlyFollowing' => $currentlyFollowing,
-                //'followerCount'      => count($username->followers),
             ]
         );
+    }
+
+    public function profileRaw($user)
+    {
+        $currentlyFollowing = 0;
+        $username           = User::query()->where('username', $user)->firstOrFail();
+        $posts              = $username->posts()->orderBy('created_at', 'desc')->get();
+
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
+        }
+
+        return response()->json([
+            'theHTML'  => view('profile-posts-only', ['posts' => $posts])->render(),
+            'docTitle' => $username->username."'s profile",
+        ]);
     }
 
     public function profileFollowers($user)
@@ -81,6 +96,26 @@ class UserController extends Controller
         );
     }
 
+    public function profileFollowersRaw($user)
+    {
+        $currentlyFollowing = 0;
+        $username           = User::query()->where('username', $user)->firstOrFail();
+        $posts              = $username->posts()->orderBy('created_at', 'desc')->get();
+
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
+        }
+
+        return response()->json([
+            'theHTML'  => view('profile-followers-only', [
+                'posts'              => $posts,
+                'currentlyFollowing' => $currentlyFollowing,
+                'followers'          => $username->followers()->latest()->get(),
+            ])->render(),
+            'docTitle' => $username->username."'s followers",
+        ]);
+    }
+
     public function profileFollowing($user)
     {
         $currentlyFollowing = 0;
@@ -100,6 +135,26 @@ class UserController extends Controller
                 'following'          => $username->followingUsers()->latest()->get(),
             ]
         );
+    }
+
+    public function profileFollowingRaw($user)
+    {
+        $currentlyFollowing = 0;
+        $username           = User::query()->where('username', $user)->firstOrFail();
+        $posts              = $username->posts()->orderBy('created_at', 'desc')->get();
+
+        if (auth()->check()) {
+            $currentlyFollowing = Follow::where([['user_id', '=', auth()->user()->id], ['followeduser', '=', $username->id]])->count();
+        }
+
+        return response()->json([
+            'theHTML'  => view('profile-following-only', [
+                'posts'              => $posts,
+                'currentlyFollowing' => $currentlyFollowing,
+                'following'          => $username->followingUsers()->latest()->get(),
+            ])->render(),
+            'docTitle' => $username->username."'s following users",
+        ]);
     }
 
     public function correctHomePage()
